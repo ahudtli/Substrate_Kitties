@@ -10,15 +10,31 @@ export default function Kitties (props) {
   const { api, keyring } = useSubstrate()
   const { accountPair } = props
 
+  const [kittyCount, setKittyCount] = useState(0)
   const [kitties, setKitties] = useState([])
   const [status, setStatus] = useState('')
 
   const fetchKitties = () => {
-    // TODO: 在这里调用 `api.query.kittiesModule.*` 函数去取得猫咪的信息。
-    // 你需要取得：
-    //   - 共有多少只猫咪
-    //   - 每只猫咪的主人是谁
-    //   - 每只猫咪的 DNA 是什么，用来组合出它的形态
+
+
+    let unsubscribe
+      api.query.kittiesModule.kittiesCount( kittyCount_ => {
+      // The storage value is an Option<u32>
+      // So we have to check whether it is None first
+      // There is also unwrapOr
+        let kittyCount = kittyCount_.unwrap().toNumber();
+    	console.log("1111111111111111111i22222:"+ kittyCount); 
+        setKittyCount(kittyCount);
+        
+      
+      
+      }).then(unsub => {
+      unsubscribe = unsub
+    })
+      .catch(console.error)
+
+    return () => unsubscribe && unsubscribe()
+
   }
 
   const populateKitties = () => {
@@ -31,12 +47,38 @@ export default function Kitties (props) {
     //  }, { id: ..., dna: ..., owner: ... }]
     //  ```
     // 这个 kitties 会传入 <KittyCards/> 然后对每只猫咪进行处理
-    const kitties = []
-    setKitties(kitties)
+    //const kitties = []
+    //setKitties(kitties)
+    //
+    console.log("1111111111111111111");
+    if(kittyCount>0){
+ //      let kittyCount = kittyCount_.unwrap().toNumber()
+       const kittyIndexList = [...Array(kittyCount ).keys()]
+       const a = api.query.kittiesModule.kitties.multi(kittyIndexList );
+       const b = api.query.kittiesModule.owner.multi(kittyIndexList );
+       Promise.all(
+           [a,b]
+       ).then(([dnaList, ownerlist]) => {
+         	
+           var arr = new Array();
+           dnaList.forEach((item, key, map) =>{
+             const kitty = {id: 0,  dna: item.toU8a(), owner: ownerlist[key].unwrap().toString()};
+             arr.push(kitty);
+
+           } );
+
+           setKitties(arr);
+
+       }).catch((error) => {
+       })
+
+    }
+
+
   }
 
   useEffect(fetchKitties, [api, keyring])
-  useEffect(populateKitties, [])
+  useEffect(populateKitties, [kittyCount])
 
   return <Grid.Column width={16}>
     <h1>小毛孩</h1>
