@@ -62,7 +62,8 @@ export default function Kitties (props) {
          	
            var arr = new Array();
            dnaList.forEach((item, key, map) =>{
-             const kitty = {id: 0,  dna: item.toU8a(), owner: ownerlist[key].unwrap().toString()};
+             //const kitty = {id: 0,  dna: item.toU8a(), owner: ownerlist[key].unwrap().toString()};
+             const kitty = {id: 0,  dna: item.unwrap(), owner: ownerlist[key].unwrap().toString()};
              arr.push(kitty);
 
            } );
