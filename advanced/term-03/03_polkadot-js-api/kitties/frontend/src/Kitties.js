@@ -49,7 +49,6 @@ export default function Kitties (props) {
     // 这个 kitties 会传入 <KittyCards/> 然后对每只猫咪进行处理
     //const kitties = []
     //setKitties(kitties)
-    //
     console.log("1111111111111111111");
     if(kittyCount>0){
  //      let kittyCount = kittyCount_.unwrap().toNumber()
